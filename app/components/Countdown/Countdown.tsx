@@ -3,12 +3,22 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+
+interface Timer {
+    name: string;
+    time: number;
+    remainingTime: number;
+    isRunning: boolean;
+  }
+  
+
+   
 function Countdown() {
     const [time, setTime] = useState<number>(60);
     const [inputValue, setInputValue] = useState<number>(0);
     const [eventName, setEventName] = useState<string>('');
     const [isRunning, setIsRunning] = useState<boolean>(false);
-    const [savedTimers, setSavedTimers] = useState<any[]>([]);
+    const [savedTimers, setSavedTimers] = useState<Timer[]>([]);
 
     const timerEndSound = new Audio('/countdown-sound.mp3'); // Path to your timer end sound
 
