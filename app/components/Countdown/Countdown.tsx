@@ -1,146 +1,169 @@
-"use client"
-import React, { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+"use client";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 function Countdown() {
-    const [time, setTime] = useState<number>(60)
-    const [inputValue, setInputValue] = useState<number>(0)
-    const [eventName, setEventName] = useState<string>('')
-    const [isRunning, setIsRunning] = useState<boolean>(false)
-    const [savedTimers, setSavedTimers] = useState<any[]>([])
+    const [time, setTime] = useState<number>(60);
+    const [inputValue, setInputValue] = useState<number>(0);
+    const [eventName, setEventName] = useState<string>('');
+    const [isRunning, setIsRunning] = useState<boolean>(false);
+    const [savedTimers, setSavedTimers] = useState<any[]>([]);
+
+    const timerEndSound = new Audio('/countdown-sound.mp3'); // Path to your timer end sound
 
     useEffect(() => {
         // Load saved timers from localStorage when the component is mounted
-        const storedTimers = localStorage.getItem('timers')
+        const storedTimers = localStorage.getItem('timers');
         if (storedTimers) {
-            setSavedTimers(JSON.parse(storedTimers))
+            setSavedTimers(JSON.parse(storedTimers));
         }
-    }, [])
+    }, []); // Empty dependency array ensures this runs only once
 
     useEffect(() => {
-        let timer: NodeJS.Timeout
+        let timer: NodeJS.Timeout;
         if (isRunning && time > 0) {
             timer = setInterval(() => {
-                setTime((prev) => prev - 1)
-            }, 1000)
-        } else if (time === 0) {
-            setIsRunning(false)
+                setTime((prev) => prev - 1);
+            }, 1000);
         }
-        return () => clearInterval(timer) // Cleanup
-    }, [isRunning, time])
+        if (time === 3) {
+            timerEndSound.play();
+        } else if (time === 0) {
+            setIsRunning(false); // Play sound when timer ends
+        }
+        return () => clearInterval(timer); // Cleanup
+    }, [isRunning, time]);
 
     const startTimer = () => {
-        setIsRunning(true)
-    }
+        setIsRunning(true);
+    };
+    const addTimer = () => {
+        setTime(time + 300);
+    };
+    const subTimer = () => {
+        setTime(time - 300);
+    };
 
     const pauseTimer = () => {
-        setIsRunning(false)
-    }
+        setIsRunning(false);
+    };
 
     const resetTimer = () => {
-        setIsRunning(false)
-        setTime(inputValue)
-    }
+        setIsRunning(false);
+        setTime(inputValue);
+    };
 
     const setNewTime = () => {
-        setIsRunning(false)
-        setTime(inputValue)
-    }
+        setIsRunning(false);
+        setTime(inputValue);
+    };
 
     const saveTimer = () => {
-        // Create an event object to save
         const newEvent = {
             name: eventName,
             time: inputValue,
             remainingTime: inputValue,
             isRunning: false,
-        }
+        };
 
-        // Save the new event in the list of timers
-        const updatedTimers = [...savedTimers, newEvent]
-        setSavedTimers(updatedTimers)
+        const updatedTimers = [...savedTimers, newEvent];
+        setSavedTimers(updatedTimers);
 
-        // Save to localStorage
-        localStorage.setItem('timers', JSON.stringify(updatedTimers))
+        localStorage.setItem('timers', JSON.stringify(updatedTimers));
 
-        // Clear the event name and input
-        setEventName('')
-        setInputValue(0)
-    }
+        setEventName('');
+        setInputValue(0);
+    };
+
+    const deleteTimer = (index: number) => {
+        const updatedTimers = savedTimers.filter((_, i) => i !== index);
+        setSavedTimers(updatedTimers);
+        localStorage.setItem('timers', JSON.stringify(updatedTimers));
+    };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8 dark:bg-black">
-            <div className="bg-white/30 backdrop-blur-lg rounded-xl shadow-2xl p-8 w-full max-w-lg text-center">
-                <h1 className="text-4xl font-bold text-gray-900 mb-6">Countdown Timer</h1>
-
-                {/* Timer Display */}
-                <div className="text-6xl font-mono text-gray-800 mb-6 p-6 rounded-lg bg-white/50">
-                    {Math.floor(time / 60).toString().padStart(2, '0')}:
-                    {(time % 60).toString().padStart(2, '0')}
-                </div>
-
-                {/* Input Field for Timer Duration */}
-                <div className="flex items-center gap-4 mb-6 justify-center">
-                    <Input
-                        type="number"
-                        value={inputValue === 0 ? '' : inputValue} // Set to empty string if input is 0 (default)
-                        onChange={(e) => setInputValue(Number(e.target.value))}
-                        className="w-72 text-center py-2 px-4 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter Your Time seconds"
-                    />
-                </div>
-
-                {/* Input Field for Event Name */}
-                <div className="flex items-center gap-4 mb-6 justify-center">
-                    <Input
-                        type="text"
-                        value={eventName}
-                        onChange={(e) => setEventName(e.target.value)}
-                        className="w-72 text-center py-2 px-4 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Event Name/Description"
-                    />
-                </div>
-
-                {/* Control Buttons */}
-                <div className="flex gap-6 justify-center">
-                    <Button variant="ghost" onClick={setNewTime} className="bg-black text-white rounded-md py-2 px-6 transition-all duration-300 ease-in-out hover:bg-gray-800 hover:text-white">
-                        Set Time
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 dark:bg-black">
+        <div className="bg-white/30 backdrop-blur-lg rounded-xl shadow-2xl p-6 w-full max-w-xs sm:max-w-sm text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Countdown Timer</h1>
+    
+            {/* Timer Display */}
+            <div className="text-4xl sm:text-5xl font-mono text-gray-800 mb-4 p-4 rounded-lg bg-white/50">
+                {Math.floor(time / 60).toString().padStart(2, '0')}:
+                {(time % 60).toString().padStart(2, '0')}
+            </div>
+    
+            {/* Input Field for Timer Duration */}
+            <div className="flex flex-col gap-3 mb-4 w-full">
+                <Input
+                    type="number"
+                    value={inputValue === 0 ? '' : inputValue}
+                    onChange={(e) => setInputValue(Number(e.target.value))}
+                    className="w-full text-center py-2 px-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter Time (seconds)"
+                />
+                <Input
+                    type="text"
+                    value={eventName}
+                    onChange={(e) => setEventName(e.target.value)}
+                    className="w-full text-center py-2 px-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Event Name/Description"
+                />
+            </div>
+    
+            {/* Control Buttons */}
+            <div className="flex flex-wrap gap-3 justify-center mb-4">
+                <Button onClick={setNewTime} className="bg-black text-white text-sm rounded-md py-2 px-4 hover:bg-gray-800">
+                    Set Time
+                </Button>
+                <Button onClick={addTimer} className="bg-black text-white text-sm rounded-md py-2 px-4 hover:bg-gray-800">
+                    +5 mins
+                </Button>
+                <Button onClick={subTimer} className="bg-black text-white text-sm rounded-md py-2 px-4 hover:bg-gray-800">
+                    -5 mins
+                </Button>
+                {!isRunning ? (
+                    <Button onClick={startTimer} className="bg-black text-white text-sm rounded-md py-2 px-4 hover:bg-gray-800">
+                        Start
                     </Button>
-                    {!isRunning ? (
-                        <Button onClick={startTimer} className="bg-black text-white rounded-md py-2 px-6 transition-all duration-300 ease-in-out hover:bg-gray-800 hover:text-white">
-                            Start
+                ) : (
+                    <Button onClick={pauseTimer} className="bg-black text-white text-sm rounded-md py-2 px-4 hover:bg-gray-800">
+                        Pause
+                    </Button>
+                )}
+                <Button onClick={resetTimer} className="bg-black text-white text-sm rounded-md py-2 px-4 hover:bg-gray-800">
+                    Reset
+                </Button>
+            </div>
+    
+            {/* Save Timer Button */}
+            <div className="mt-2 mb-4">
+                <Button onClick={saveTimer} className="bg-green-500 text-white text-sm rounded-md py-2 px-4 hover:bg-green-600">
+                    Save Timer
+                </Button>
+            </div>
+    
+            {/* Saved Timers List */}
+            <div className="space-y-4">
+                {savedTimers.map((timer, index) => (
+                    <div key={index} className="bg-white/30 p-3 rounded-lg shadow-md text-gray-800">
+                        <h2 className="font-semibold text-sm">{timer.name || 'Untitled Event'}</h2>
+                        <p className="text-xs">Time: {timer.time}s</p>
+                        <p className="text-xs">Remaining: {timer.remainingTime}s</p>
+                        <Button
+                            onClick={() => deleteTimer(index)}
+                            className="bg-red-500 text-white text-xs rounded-md py-1 px-3 mt-2 hover:bg-red-600"
+                        >
+                            Delete
                         </Button>
-                    ) : (
-                        <Button onClick={pauseTimer} className="bg-black text-white rounded-md py-2 px-6 transition-all duration-300 ease-in-out hover:bg-gray-800 hover:text-white">
-                            Pause
-                        </Button>
-                    )}
-                    <Button onClick={resetTimer} className="bg-black text-white rounded-md py-2 px-6 transition-all duration-300 ease-in-out hover:bg-gray-800 hover:text-white">
-                        Reset
-                    </Button>
-                </div>
-
-                {/* Save Timer Button */}
-                <div className="mt-4">
-                    <Button onClick={saveTimer} className="bg-green-500 text-white rounded-md py-2 px-6 transition-all duration-300 ease-in-out hover:bg-green-600">
-                        Save Timer
-                    </Button>
-                </div>
-
-                {/* List of Saved Timers */}
-                <div className="mt-6 space-y-4">
-                    {savedTimers.map((timer, index) => (
-                        <div key={index} className="bg-white/30 p-4 rounded-lg shadow-md text-gray-800">
-                            <h2 className="font-semibold">{timer.name || 'Untitled Event'}</h2>
-                            <p>Time: {timer.time}s</p>
-                            <p>Remaining: {timer.remainingTime}s</p>
-                        </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
             </div>
         </div>
-    )
+    </div>
+    
+    );
 }
 
-export default Countdown
+export default Countdown;
+
