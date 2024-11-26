@@ -40,7 +40,7 @@ function Countdown() {
         settime(inputValue);
       }
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8 dark:bg-black">
     <div className="bg-white/30 backdrop-blur-lg rounded-xl shadow-2xl p-8 w-full max-w-lg text-center">
       <h1 className="text-4xl font-bold text-gray-900 mb-6">Countdown Timer</h1>
   
@@ -67,7 +67,7 @@ function Countdown() {
   
       {/* Control Buttons */}
       <div className="flex gap-6 justify-center">
-      <Button variant="ghost" onClick={setNewTime} className="bg-black text-white rounded-md py-2 px-6 transition-all duration-300 ease-in-out hover:bg-gray-800 hover:text-white">
+      <Button variant="ghost" onClick={setNewTime} className="bg-black text-white rounded-md py-2 px-6 transition-all duration-300 ease-in-out hover:bg-gray-800 hover:text-white dark:bg-white">
             Set Time
           </Button>
         {!isRunning ? (
